@@ -1,9 +1,9 @@
 {
-  "name": "sketch",
+  "name": "abs",
   "version": "0.1.0",
-  "description": "A WebAssembly sketch",
+  "description": "Utility program for printing information about a Linux system",
   "main": "src/index.ts",
-  "repository": "https://github.com/Ameobea/sketches",
+  "repository": "https://github.com/Ameobea/CS330",
   "author": "Casey Primozic <me@ameo.link>",
   "devDependencies": {
     "handlebars": "^4.0.11",

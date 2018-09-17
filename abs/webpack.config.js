@@ -35,4 +35,7 @@ module.exports = {
       template: 'index.hbs',
     }),
   ],
+  node: {
+    fs: 'empty',
+  },
 };
