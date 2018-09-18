@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -21,18 +22,25 @@ module.exports = {
         test: /\.hbs$/,
         use: 'handlebars-loader',
       },
+      {
+        test: /\.c$/,
+        use: 'raw-loader',
+      },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.wasm'],
+    extensions: ['.tsx', '.ts', '.js', '.wasm', '.c'],
     modules: [path.resolve('./node_modules'), path.resolve('.')],
   },
   plugins: [
     new HtmlWebpackPlugin({
       alwaysWriteToDisk: true,
-      title: 'Untitled Sketch',
-      minify: true,
-      template: 'index.hbs',
+      title: 'Lab 1b',
+      minify: false,
+      template: 'index.html.hbs',
+      templateParameters: {
+        cSourceCode: fs.readFileSync('./c/src/program.c'),
+      },
     }),
   ],
   node: {

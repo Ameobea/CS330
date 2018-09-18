@@ -2,3 +2,4 @@ dist/*
 src/engine*
 src/out*
 node_modules/
+highlight

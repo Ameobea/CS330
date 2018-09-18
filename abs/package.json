@@ -8,6 +8,7 @@
   "devDependencies": {
     "handlebars": "^4.0.11",
     "handlebars-loader": "^1.7.0",
+    "raw-loader": "^0.5.1",
     "html-webpack-plugin": "^4.0.0-alpha",
     "ts-loader": "^4.4.2",
     "typescript": "^2.9.2",

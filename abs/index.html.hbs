@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <title>{{ htmlWebpackPlugin.options.title }}</title>
+  <style>
+    body {
+      background-color: #232320;
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: #eee;
+    }
+
+    a {
+      color:#0070FA;
+    }
+
+    a:visited {
+      color: #791079;
+    }
+
+    /* The console container element */
+    #console {
+      position: absolute;
+      width: 600px;
+      height: 500px;
+      background-color:black;
+    }
+    /* The inner console element. */
+    .jqconsole {
+      padding: 10px;
+    }
+    /* The cursor. */
+    .jqconsole-cursor {
+      background-color: gray;
+    }
+    /* The cursor color when the console looses focus. */
+    .jqconsole-blurred .jqconsole-cursor {
+      background-color: #666;
+    }
+    /* The current prompt text color */
+    .jqconsole-prompt {
+      color: #0d0;
+    }
+    /* The command history */
+    .jqconsole-old-prompt {
+      color: #0b0;
+      font-weight: normal;
+    }
+    /* The text color when in input mode. */
+    .jqconsole-input {
+      color: #dd0;
+    }
+    /* Previously entered input. */
+    .jqconsole-old-input {
+      color: #bb0;
+      font-weight: normal;
+    }
+    /* The text color of the output. */
+    .jqconsole-output {
+      color: white;
+    }
+
+    #src {
+      position:absolute;
+      left: 650px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
+  </style>
+  <!-- highlight.js -->
+  <link rel="stylesheet" href="/highlight/styles/monokai.css">
+  <script type="text/javascript" src="/highlight/highlight.pack.js"></script>
+  <script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+  <script <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+    crossorigin="anonymous"></script>
+  <!-- jqconsole -->
+  <script src="https://ameo.link/u/5q1.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>
+  <p>This is a virtual console (implemented using the open source <a href="https://github.com/replit-archive/jq-console"><code>jq-console</code></a>
+    library)
+    that can be used to run the `abs` program via WebAssembly. It isn't a real shell, but behaves like one for the
+    purposes of this project.</p>
+  <p>It supports the <code>abs</code> command as well as the <code>clear</code> command.
+    When <code>abs</code> is run, the <code>driver</code> function is <a href="https://github.com/Ameobea/CS330/blob/ba2c6d48a9fed18b11cc4c37863de92f8fdad6b6/abs/src/index.ts#L45">called
+      directly</a> with the supplied arguments and the returned array of output lines is printed to the console.
+    The JavaScript strings are encoded into UTF8 bytes and copied into the Emscripten heap. We call the <code>_malloc</code>
+    function provided by Emscripten directly
+    from JavaScript to allocate space for the arguments and then write them in using JavaScript APIs like <a href="https://github.com/Ameobea/CS330/blob/ba2c6d48a9fed18b11cc4c37863de92f8fdad6b6/abs/src/index.ts#L61"><code>Int8Array.set</code></a>.
+    The return value from the WebAssembly function is a number which represents an index into the Emscripten heap (a
+    pointer). Using this, we read out the output strings and
+    print them to the console.
+    Anything printed to <code>stdout</code> or <code>stderr</code> from the C code is automatically logged to the JS
+    console, making debugging much easier.</p>
+  You can view the Emscripten heap and even set values in it manually by using the <code>MODULE.HEAP8</code> variable
+  in the
+  global scope.
+  <p>This is made possible by compiling the C code to <a href="https://webassembly.org/">WebAssembly</a> via <a href="https://github.com/kripken/emscripten">Emscripten</a>.
+    WebAssembly is a binary format that is executed via a virtual machine in the browser. You can call into Wasm
+    functions via JavaScript and vice versa.
+    Emscripten emulates the system calls used by the application. Some are implemented using hardcoded values including
+    the release info and the PID info
+    (there is not support for multiple processes) and others work by calling into JavaScript code such as <code>ctime</code>.</p>
+  <p>The full source code for this project was written by me and is available here:
+    <a href="https://github.com/Ameobea/CS330/tree/master/abs">https://github.com/Ameobea/CS330/tree/master/abs</a></p>
+
+  <div id="console"></div>
+
+  <p>Here's the full C code that is used by the <code>abs</code> application:</p>
+  <pre id="src"><code class="c">// Source code also available on Github: <a href="https://github.com/Ameobea/CS330/blob/master/abs/c/src/program.c">https://github.com/Ameobea/CS330/blob/master/abs/c/src/program.c</a>
+
+{{ cSourceCode }}</code></pre>
+
+  <div class="footer">Created by Casey Primozic</div>
+</body>
+
+</html>
