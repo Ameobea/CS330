@@ -75,20 +75,26 @@
     }
   </style>
   <!-- highlight.js -->
-  <link rel="stylesheet" href="/highlight/styles/monokai.css">
-  <script type="text/javascript" src="/highlight/highlight.pack.js"></script>
+  <link rel="stylesheet" href="./highlight/styles/monokai.css">
+  <script type="text/javascript" src="./highlight/highlight.pack.js"></script>
   <script type="text/javascript">hljs.initHighlightingOnLoad();</script>
-  <script <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
     crossorigin="anonymous"></script>
   <!-- jqconsole -->
   <script src="https://ameo.link/u/5q1.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
+  <p><b>For the standalone, local version that meets the requirements of the original assignment, see <a href="./src/">https://abs.ameo.design/src/</a>.
+      It includes one additional c source file which has a single function which handles calling the <code>driver</code>
+      function from the other file (<code>program.c</code>)
+      <br />
+      Compile with </b><code>gcc -O3 driver.c -o ./abs</code></p>
+  <hr />
   <p>This is a virtual console (implemented using the open source <a href="https://github.com/replit-archive/jq-console"><code>jq-console</code></a>
     library)
-    that can be used to run the `abs` program via WebAssembly. It isn't a real shell, but behaves like one for the
-    purposes of this project.</p>
+    that can be used to run the <code>abs</code> program via WebAssembly. It isn't a real shell, but behaves like one
+    for the purposes of this project.</p>
   <p>It supports the <code>abs</code> command as well as the <code>clear</code> command.
     When <code>abs</code> is run, the <code>driver</code> function is <a href="https://github.com/Ameobea/CS330/blob/ba2c6d48a9fed18b11cc4c37863de92f8fdad6b6/abs/src/index.ts#L45">called
       directly</a> with the supplied arguments and the returned array of output lines is printed to the console.
