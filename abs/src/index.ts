@@ -22,12 +22,29 @@ const getCommandOutput = (args, jqconsole, abs) => {
   return `command not found: ${cmd}\n`;
 };
 
-const init = loaded => {
+type pointer = number;
+
+interface Module {
+  HEAP8: Int8Array;
+  HEAPU8: Uint8Array;
+  HEAPU32: Uint32Array;
+  HEAP32: Int32Array;
+  ENV: { [varName: string]: string };
+  _malloc: (bytes: number) => pointer;
+  _free: (ptr: pointer) => void;
+  _driver: (argc: number, argv: pointer) => pointer;
+  // preamble functions
+  stringToUTF8: (s: string, ptr: pointer, length: number) => void;
+  Pointer_stringify: (ptr: pointer) => string;
+}
+
+const init = (loaded: Module) => {
+  // loaded.ENV['SHELL'] = 'jqconsole';
   (window as any).MODULE = loaded;
   const abs = (args: string[]): string[] => {
-    const absInner = (argc, argv) => loaded._driver.call(loaded, argc, argv);
+    const absInner = (argc: number, argv: pointer) => loaded._driver.call(loaded, argc, argv);
 
-    const stringPointers = new Uint32Array(
+    const stringPointers = new Int32Array(
       [...args, null].map(arg => {
         if (arg === null) {
           return 0;
@@ -38,9 +55,11 @@ const init = loaded => {
         return ptr;
       })
     );
-    const ptr = loaded._malloc(stringPointers.length * 4);
-    loaded.HEAPU32.set(stringPointers, ptr >> 2);
-    const returnValue = absInner(args.length, ptr); // **char
+
+    // 32-bit pointers; 4 bytes each
+    const argvPtr = loaded._malloc(stringPointers.length * stringPointers.BYTES_PER_ELEMENT);
+    loaded.HEAP32.set(stringPointers, argvPtr >> 2);
+    const returnValue: pointer = absInner(args.length, argvPtr); // **char
     stringPointers.forEach(loaded._free);
 
     let curHeapIndex = returnValue;
@@ -48,11 +67,10 @@ const init = loaded => {
     while (loaded.HEAP32[curHeapIndex >> 2] !== 0) {
       const convertedString = loaded.Pointer_stringify(loaded.HEAP32[curHeapIndex >> 2]);
       returnedStrings.push(convertedString);
-      // console.log(`Freeing ${loaded.HEAP32[curHeapIndex >> 2]}`);
-      loaded._free(curHeapIndex);
+      loaded._free(loaded.HEAP32[curHeapIndex >> 2]);
       curHeapIndex += 4;
     }
-    loaded._free(ptr);
+    loaded._free(argvPtr);
 
     return returnedStrings;
   };

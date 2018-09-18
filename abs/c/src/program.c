@@ -1,3 +1,4 @@
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,8 +19,8 @@ struct linevector {
   char **buf;
 };
 
-const int LINEVECTOR_DEFAULT_SIZE = 1;
-const int LINEVECTOR_GROWBY = 8;
+int LINEVECTOR_DEFAULT_SIZE = 1;
+int LINEVECTOR_GROWBY = 8;
 
 void linevectorInit(struct linevector *vec) {
   vec->size = LINEVECTOR_DEFAULT_SIZE;
@@ -73,7 +74,6 @@ void getOSName(struct linevector *lines) {
 void getSystemRelease(struct linevector *lines) {
   struct utsname unameData;
   uname(&unameData);
-  puts(unameData.release);
   char *buf =
       (char *)malloc((strlen(unameData.release) + 8 + 1) * sizeof(char));
   sprintf(buf, "Release %s", unameData.release);
@@ -99,7 +99,11 @@ void getPID(struct linevector *lines) {
 }
 
 void getUserInfo(struct linevector *lines) {
-  // TODO
+  uid_t uid = getuid();
+  struct passwd *userinfo = getpwuid(uid);
+  char *buf = (char *)malloc(100 * sizeof(char));
+  sprintf(buf, "User = %s UID=%i", userinfo->pw_name, uid);
+  linevectorPush(lines, buf);
 }
 
 void getCurrentShell(struct linevector *lines) {
@@ -126,6 +130,8 @@ void getCurDateTime(struct linevector *lines) {
 
   char *timestring = ctime(&tod_or_error);
   char *buf = (char *)malloc((strlen(timestring) + 7 + 1) * sizeof(char));
+  // cut off last char of timestring (\n)
+  timestring[strlen(timestring) - 1] = 0;
   sprintf(buf, "Time = %s", timestring);
   linevectorPush(lines, buf);
 }
@@ -144,16 +150,11 @@ void invalidArgument(struct linevector *lines, char *invalidArg) {
 const int FLAG_COUNT = 8;
 
 char **driver(int argc, char *argv[]) {
-  printf("argc %i\n", argc);
-  for (int i = 0; i < argc; ++i) {
-    printf("argv[ %d ] = %s (%p)\n", i, argv[i], argv[i]);
-  }
-
   // This is C, even though it's running in the web browser.  We do low-level
   // hackery here.
   void (*jumptable[])(struct linevector *) = {
-      getOSName,   getSystemRelease, getMachineType, getPID,
-      getUserInfo, getCurrentShell,  getCurDateTime, getHelp};
+      getOSName,   getSystemRelease, getMachineType,  getPID,
+      getUserInfo, getCurDateTime,   getCurrentShell, getHelp};
 
   struct linevector lines;
   linevectorInit(&lines);
@@ -164,7 +165,7 @@ char **driver(int argc, char *argv[]) {
     }
   }
 
-  char *flagIndices = "srmiulth";
+  char *flagIndices = "srmiutlh";
   for (int argIndex = 1; argIndex < argc; argIndex++) {
     if (argv[argIndex][0] != '-' || argv[argIndex][1] == 0 ||
         argv[argIndex][2] != 0) {
@@ -173,13 +174,18 @@ char **driver(int argc, char *argv[]) {
     }
 
     char flag = argv[argIndex][1];
-    printf("Flag: %c\nflagIndices: %s\n", flag, flagIndices);
-
-    printf("Matching flag %c\n", flag);
+    int matched = 0;
     for (int i = 0; i < FLAG_COUNT; i++) {
       if (flag == flagIndices[i]) {
         jumptable[i](&lines);
+        matched = 1;
+        break;
       }
+    }
+
+    if (matched == 0) {
+      invalidArgument(&lines, argv[argIndex]);
+      break;
     }
   }
 
