@@ -1,5 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 
+/**
+ * Dynamic vector implementation since this is C and we're living in the stone
+ * age
+ */
 struct linevector {
   int size;
   int len;
